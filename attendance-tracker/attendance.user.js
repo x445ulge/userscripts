@@ -93,7 +93,7 @@ function main() {
         <br>
         <b>Total Delta:</b> ${result.totalDelta}
         <br><br>
-        <b>Balance Hours:</b> ${msToHMS(balance_ms)}
+        <b>Balance Hours:</b> <span style="color: ${balance_ms < 0 ? "red" : "green"};">${msToHMS(Math.abs(balance_ms))}</span>
         <br>
         <b>Ideal Target for Today:</b> 
             ${fmt(target_logout.getHours() % 12 || 12)}:
