@@ -81,6 +81,24 @@ function main() {
     // console.log("Active Hours:", result.active)
     // console.log("Total Delta:", result.totalDelta)
 
+    const past_attendance_rows = document.querySelector("#ctl00_ContentPlaceHolder1_GVAttendance").querySelectorAll("tr")
+
+    let total_days = 0
+    let total_minutes = 0
+
+    for (let index = 1; index < past_attendance_rows.length; index++) {
+        const total_hours_ = past_attendance_rows[index].querySelectorAll("td")[10].textContent.trim().split(":");
+        if (total_hours_.length != 2) continue;
+
+        total_days += 1
+        total_minutes += parseInt(total_hours_[0]) * 60 + parseInt(total_hours_[1])
+    }
+
+    const avg_minutes = total_minutes / total_days
+    const avg_hours = Math.floor(avg_minutes / 60)
+    const avg_remaining_minutes = Math.floor(avg_minutes % 60)
+
+
     const summary_table = document.querySelector("#ctl00_ContentPlaceHolder1_tdSummary")
     const summary = document.createElement('div')
 
@@ -89,9 +107,9 @@ function main() {
     const fmt = (t) => { return String(t).padStart(2, '0') }
 
     summary.innerHTML = `
-        <b>Active Hours:</b> ${result.active}
+        <b>Active Hours:</b> <span class="result-active">${result.active}</span>
         <br>
-        <b>Total Delta:</b> ${result.totalDelta}
+        <b>Total Delta:</b> <span class="result-total-delta">${result.totalDelta}</span>
         <br><br>
         <b>Balance Hours:</b> <span style="color: ${balance_ms < 0 ? "red" : "green"};">${msToHMS(Math.abs(balance_ms))}</span>
         <br>
@@ -107,7 +125,16 @@ function main() {
             ${fmt(usual_logout.getSeconds())} 
             ${usual_logout.getHours() >= 12 ? "PM" : "AM"}
         <br>
+        Average Daily Work Time over ${total_days} days: <b>${String(avg_hours).padStart(2, '0')}:${String(avg_remaining_minutes).padStart(2, '0')}</b>
         `
 
     summary_table.append(summary)
+
+    // dynamic update every second
+    setInterval(() => {
+        const result = computeAttendance(times)
+        document.querySelector('.result-active').textContent = result.active
+        document.querySelector('.result-total-delta').textContent = result.totalDelta
+    }, 1000)
+
 }
